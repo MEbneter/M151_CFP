@@ -107,7 +107,6 @@
 
       const app = Vue.createApp({
         created () {
-          // this.getUser()
           this.getCases()
           this.getUsers()
         },
@@ -127,7 +126,7 @@
             const params = new URLSearchParams()
             params.append('case', 'del')
             params.append('id', id)
-            axios.post('http://localhost/M151_CFP/case.api.php', params)
+            axios.post('http://localhost/M151_CFP/Control/case.api.php', params)
             .then((response) => {
               for (var i = 0; i < this.caseData.length; i++) {
                 const element = this.caseData[i]
@@ -141,7 +140,7 @@
               params.append('case', 'add')
               params.append('casetext', this.newCaseText)
               params.append('userid', this.user.userid)
-              axios.post('http://localhost/M151_CFP/case.api.php', params)
+              axios.post('http://localhost/M151_CFP/Control/case.api.php', params)
               .then((response) => {
                 this.getCases()
                 this.switchNewCaseView()
@@ -167,35 +166,26 @@
             params.append('case', 'changeState')
             params.append('id', id)
             params.append('state', state)
-            axios.post('http://localhost/M151_CFP/case.api.php', params)
+            axios.post('http://localhost/M151_CFP/Control/case.api.php', params)
           },
           getCases () {
             const params = new URLSearchParams()
             params.append('case', 'get')
-            axios.post('http://localhost/M151_CFP/case.api.php', params)
+            axios.post('http://localhost/M151_CFP/Control/case.api.php', params)
             .then((response) => {
-              console.log(response.data)
               if(response.data) this.caseData = response.data
             })
           },
           getUsers () {
             const params = new URLSearchParams()
             params.append('user', 'getAll')
-            axios.post('http://localhost/M151_CFP/user.api.php', params)
+            axios.post('http://localhost/M151_CFP/Control/user.api.php', params)
             .then((response) => {
               if(response.data) this.users = response.data
               this.users.forEach((element) => {
                 element.value = element.username
                 element.label = element.username
               });
-            })
-          },
-          getUser () {
-            const params = new URLSearchParams()
-            params.append('user', 'get')
-            axios.post('http://localhost/M151_CFP/user.api.php', params)
-            .then((response) => {
-              if(response.data) this.users = response.data // ????
             })
           },
           getUserName (userid) {
@@ -205,7 +195,7 @@
           doLogout () {
             const params = new URLSearchParams()
             params.append('user', 'logout')
-            axios.post('http://localhost/M151_CFP/user.api.php', params)
+            axios.post('http://localhost/M151_CFP/Control/user.api.php', params)
             .then((response) => {
               window.location = "index.php"
             })

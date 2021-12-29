@@ -1,6 +1,6 @@
 <?php
 session_start();
-include_once('./control/CaseHandler.php');
+include_once('./CaseHandler.php');
 $cases = new CaseHandler();
 
 if (isset($_POST)){

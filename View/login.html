@@ -55,7 +55,7 @@
             const params = new URLSearchParams()
             params.append('user', this.user)
             params.append('passwd', this.passwd)
-            axios.post('http://localhost/M151_CFP/user.api.php', params).then((response) => {
+            axios.post('http://localhost/M151_CFP/Control/user.api.php', params).then((response) => {
               if(response.data.isUser) window.location = "index.php"
             })
           }

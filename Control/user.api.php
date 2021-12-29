@@ -1,6 +1,6 @@
 <?php
 session_start();
-include_once('./control/UserHandler.php');
+include_once('./UserHandler.php');
 $users = new UserHandler();
 if(isset($_POST)){
   if (isset($_POST['user'])){
