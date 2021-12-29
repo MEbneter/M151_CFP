@@ -1,13 +1,13 @@
 <?php
 
 class CaseHandler {
-  private $user = "root";
-  private $pass = "";
+  private $cfgData;
   private $pdo;
   private $cases = array();
 
   public function __construct(){
-    $this->pdo = new PDO('mysql:host=localhost;dbname=m151cfp', $this->user, $this->pass);
+    $cfgData = json_decode(file_get_contents("./config.json"), true);
+    $this->pdo = new PDO('mysql:host='.$cfgData['host'].';dbname='.$cfgData['dbname'], $cfgData['user'], $cfgData['pass']);
   }
 
   public function getCases() {
@@ -42,3 +42,5 @@ class CaseHandler {
     $statement->execute(array($userid, $casetext));
   }
 }
+
+$blub = new CaseHandler();
