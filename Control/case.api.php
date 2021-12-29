@@ -6,7 +6,11 @@ $cases = new CaseHandler();
 if (isset($_POST)){
   if(isset($_POST['case'])){
     if($_POST['case'] == 'get'){
-      echo json_encode($cases->getCases());
+      if($_SESSION['isadmin'] == TRUE){
+        echo json_encode($cases->getCases());
+      } else {
+        echo json_encode($cases->getCasesById($_SESSION['userid']));
+      }
     }
     if($_POST['case'] == 'del'  && $_SESSION['isadmin'] == TRUE){
       $cases->delCase($_POST['id']);

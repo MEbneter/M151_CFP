@@ -14,7 +14,7 @@
           <q-item-label class="text-h6 text-center" header>zu Erledigen</q-item-label>
           <q-separator class="q-mb-xs"></q-separator>
           <div v-for="item in todoCases" :key="item">
-            <q-item v-if="userData && item.userid === userData.userid">
+            <q-item >
               <q-item-section avatar>
                 <q-icon name="alarm_on" color="black" size="34px" />
               </q-item-section>
@@ -34,7 +34,7 @@
           <q-item-label class="text-h6 text-center" header>in Bearbeitung</q-item-label>
           <q-separator class="q-mb-xs"></q-separator>
           <div v-for="item in atworkCases" :key="item">
-            <q-item v-if="userData && item.userid === userData.userid">
+            <q-item >
               <q-item-section avatar>
                 <q-icon name="timer" color="black" size="34px" />
               </q-item-section>
@@ -54,7 +54,7 @@
           <q-item-label class="text-h6 text-center" header>Erledigt</q-item-label>
           <q-separator class="q-mb-xs"></q-separator>
           <div v-for="item in doneCases" :key="item">
-            <q-item v-if="userData && item.userid === userData.userid">
+            <q-item>
               <q-item-section avatar>
                 <q-icon name="favorite" color="black" size="34px" />
               </q-item-section>
@@ -78,7 +78,7 @@
 
       const app = Vue.createApp({
         created () {
-          this.getUser()
+          // this.getUser()
           this.getCases()
         },
         computed: {
