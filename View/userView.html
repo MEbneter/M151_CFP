@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons" rel="stylesheet" type="text/css">
+    <link href="https://cdn.jsdelivr.net/npm/quasar@2.3.4/dist/quasar.prod.css" rel="stylesheet" type="text/css">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  </head>
+  <body>
+    <div id="q-appUser">
+      <div class="flex flex-center q-pa-md column items-center content-center" style="margin-top:2em;">
+        <h1 class="text-h4">Familienplanung</h1>
+        <!-- zuErledigen -->
+        <q-list bordered separator class="rounded-borders q-mb-sm">
+          <q-item-label class="text-h6 text-center" header>zu Erledigen</q-item-label>
+          <q-separator class="q-mb-xs"></q-separator>
+          <div v-for="item in todoCases" :key="item">
+            <q-item v-if="userData && item.userid === userData.userid">
+              <q-item-section avatar>
+                <q-icon name="alarm_on" color="black" size="34px" />
+              </q-item-section>
+              <q-item-section >
+                <div style="min-height:2em;">
+                {{ item.caseText }}
+                </div>
+                <div>
+                  <q-btn size="12px" flat round icon="done" @click="moveCase(item.caseid)" ></q-btn>
+                </div>
+              </q-item-section>
+            </q-item>
+          </div>
+        </q-list>
+        <!-- inBearbeitung -->
+        <q-list bordered separator class="rounded-borders q-mb-sm">
+          <q-item-label class="text-h6 text-center" header>in Bearbeitung</q-item-label>
+          <q-separator class="q-mb-xs"></q-separator>
+          <div v-for="item in atworkCases" :key="item">
+            <q-item v-if="userData && item.userid === userData.userid">
+              <q-item-section avatar>
+                <q-icon name="timer" color="black" size="34px" />
+              </q-item-section>
+              <q-item-section >
+                <div style="min-height:2em;">
+                {{ item.caseText }}
+                </div>
+                <div>
+                  <q-btn size="12px" flat round icon="done" @click="moveCase(item.caseid)" ></q-btn>
+                </div>
+              </q-item-section>
+            </q-item>
+          </div>
+        </q-list>
+        <!-- Done -->
+        <q-list bordered separator class="rounded-borders" style="max-width: 600px">
+          <q-item-label class="text-h6 text-center" header>Erledigt</q-item-label>
+          <q-separator class="q-mb-xs"></q-separator>
+          <div v-for="item in doneCases" :key="item">
+            <q-item v-if="userData && item.userid === userData.userid">
+              <q-item-section avatar>
+                <q-icon name="favorite" color="black" size="34px" />
+              </q-item-section>
+              <q-item-section >
+                <div style="min-height:2em;">
+                {{ item.caseText }}
+                </div>
+              </q-item-section>
+            </q-item>
+          </div>
+        </q-list>
+      </div>
+      <q-btn fab icon="logout" color="black" id="logout" @click="doLogout"></q-btn>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.prod.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/quasar@2.3.4/dist/quasar.umd.prod.js"></script>
+
+    <script>
+
+
+      const app = Vue.createApp({
+        created () {
+          this.getUser()
+          this.getCases()
+        },
+        computed: {
+          todoCases : function () {
+            return this.caseData.filter(item => item.state === 'todo')
+          },
+          atworkCases : function () {
+            return this.caseData.filter(item => item.state === 'atwork')
+          },
+          doneCases : function () {
+            return this.caseData.filter(item => item.state === 'done')
+          }
+        },
+        methods: {
+          moveCase (id) {
+            const tempEl = this.caseData.filter(item => item.caseid === id)
+            if(tempEl[0].state === 'todo'){
+              tempEl[0].state = 'atwork'
+              this.changeState(tempEl[0].state, id)
+              return
+            }
+            if(tempEl[0].state === 'atwork'){
+              tempEl[0].state = 'done'
+              this.changeState(tempEl[0].state, id)
+              return
+            }
+          },
+          changeState (state, id) {
+            const params = new URLSearchParams()
+            params.append('case', 'changeState')
+            params.append('id', id)
+            params.append('state', state)
+            axios.post('http://localhost/M151_CFP/case.api.php', params)
+          },
+          getCases () {
+            const params = new URLSearchParams()
+            params.append('case', 'get')
+            axios.post('http://localhost/M151_CFP/case.api.php', params).then((response) => {
+              if(response.data) this.caseData = response.data
+            })
+          },
+          getUser () {
+            const params = new URLSearchParams()
+            params.append('user', 'get')
+            axios.post('http://localhost/M151_CFP/user.api.php', params).then((response) => {
+              if(response.data) this.userData = response.data
+            })
+          },
+          doLogout () {
+            const params = new URLSearchParams()
+            params.append('user', 'logout')
+            axios.post('http://localhost/M151_CFP/user.api.php', params)
+            .then((response) => {
+              window.location = "index.php"
+            })
+          }
+        },
+        data (){
+          return {
+            userData: null,
+            caseData: [{
+                "caseid": "0",
+                "userid": "0",
+                "caseText": "no Data found",
+                "state": "todo"
+            }]
+          }
+        }
+      })
+
+      app.use(Quasar)
+      app.mount('#q-appUser')
+    </script>
+    <style>
+    #logout {
+      position: absolute;
+      right: 20px;
+      top: 20px;
+    }
+    .q-list {
+      width: 320px;
+    }
+    </style>
+  </body>
+</html>

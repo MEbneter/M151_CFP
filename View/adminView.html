@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons" rel="stylesheet" type="text/css">
+    <link href="https://cdn.jsdelivr.net/npm/quasar@2.3.4/dist/quasar.prod.css" rel="stylesheet" type="text/css">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  </head>
+  <body>
+
+    <div id="q-appAdmin">
+      <div class="flex flex-center q-pa-md column items-center content-center" style="margin-top:2em;">
+        <h1 class="text-h4">Familienplanung</h1>
+        <q-btn color="white" text-color="black" label="Neuer Auftrag" @click="switchNewCaseView"></q-btn>
+        <div v-if="showAddCase" class="q-pa-md" style="max-width: 320px">
+          <q-input
+            v-model="newCaseText"
+            outlined
+            type="textarea"
+         >
+        </q-input>
+        <q-select
+          outlined
+          class="q-my-sm"
+          dense
+          v-model="user"
+          :options="users"
+          label="Verantwortlich"
+        >
+        </q-select>
+          <q-btn color="white" text-color="black" label="Einreichen" @click="addCase"></q-btn>
+          <q-btn color="white" text-color="black" label="Abbrechen" @click="switchNewCaseView"></q-btn>
+        </div>
+        <!-- zuErledigen -->
+        <q-list bordered separator class="rounded-borders q-my-sm">
+          <q-item-label class="text-h6 text-center" header>zu Erledigen</q-item-label>
+          <q-separator class="q-mb-xs"></q-separator>
+          <div v-for="item in todoCases" :key="item">
+            <q-item v-if="users">
+              <q-item-section avatar>
+                <q-icon name="alarm_on" color="black" size="34px" />
+              </q-item-section>
+              <q-item-section >
+                <div style="min-height:2em;">
+                {{ item.caseText }}
+                <div class="float-right text-caption">{{getUserName(item.userid)}}</div>
+                </div>
+                <div>
+                  <q-btn size="12px" flat round icon="done" @click="moveCase(item.caseid)" ></q-btn>
+                  <q-btn size="12px" flat round icon="delete" @click="delCase(item.caseid)" ></q-btn>
+                </div>
+              </q-item-section>
+            </q-item>
+          </div>
+        </q-list>
+        <!-- inBearbeitung -->
+        <q-list bordered separator class="rounded-borders q-mb-sm">
+          <q-item-label class="text-h6 text-center" header>in Bearbeitung</q-item-label>
+          <q-separator class="q-mb-xs"></q-separator>
+          <div v-for="item in atworkCases" :key="item">
+            <q-item v-if="users">
+              <q-item-section avatar>
+                <q-icon name="timer" color="black" size="34px" />
+              </q-item-section>
+              <q-item-section >
+                <div style="min-height:2em;">
+                {{ item.caseText }}
+                <div class="float-right text-caption">{{getUserName(item.userid)}}</div>
+                </div>
+                <div>
+                  <q-btn size="12px" flat round icon="done" @click="moveCase(item.caseid)" ></q-btn>
+                  <q-btn size="12px" flat round icon="delete" @click="delCase(item.caseid)" ></q-btn>
+                </div>
+              </q-item-section>
+            </q-item>
+          </div>
+        </q-list>
+        <!-- Done -->
+        <q-list bordered separator class="rounded-borders">
+          <q-item-label class="text-h6 text-center" header>Erledigt</q-item-label>
+          <q-separator class="q-mb-xs"></q-separator>
+          <div v-for="item in doneCases" :key="item">
+            <q-item v-if="users">
+              <q-item-section avatar>
+                <q-icon name="favorite" color="black" size="34px" />
+              </q-item-section>
+              <q-item-section >
+                <div style="min-height:2em;">
+                {{ item.caseText }}
+                <div class="float-right text-caption">{{getUserName(item.userid)}}</div>
+                </div>
+                <div>
+                  <q-btn size="12px" flat round icon="delete" @click="delCase(item.caseid)" ></q-btn>
+                </div>
+              </q-item-section>
+            </q-item>
+          </div>
+        </q-list>
+      </div>
+      <q-btn fab icon="logout" color="black" id="logout" @click="doLogout"></q-btn>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.prod.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/quasar@2.3.4/dist/quasar.umd.prod.js"></script>
+
+    <script>
+
+      const app = Vue.createApp({
+        created () {
+          // this.getUser()
+          this.getCases()
+          this.getUsers()
+        },
+        computed: {
+          todoCases : function () {
+            return this.caseData.filter(item => item.state === 'todo')
+          },
+          atworkCases : function () {
+            return this.caseData.filter(item => item.state === 'atwork')
+          },
+          doneCases : function () {
+            return this.caseData.filter(item => item.state === 'done')
+          }
+        },
+        methods: {
+          delCase (id) {
+            const params = new URLSearchParams()
+            params.append('case', 'del')
+            params.append('id', id)
+            axios.post('http://localhost/M151_CFP/case.api.php', params)
+            .then((response) => {
+              for (var i = 0; i < this.caseData.length; i++) {
+                const element = this.caseData[i]
+                if(element.caseid === id) this.caseData.splice(i,1)
+              }
+            })
+          },
+          getUserName (userid) {
+            const user = this.users.filter(item => item.userid === userid)
+            return user[0].username
+          },
+          addCase () {
+            if(this.user){
+              const params = new URLSearchParams()
+              params.append('case', 'add')
+              params.append('casetext', this.newCaseText)
+              params.append('userid', this.user.userid)
+              axios.post('http://localhost/M151_CFP/case.api.php', params)
+              .then((response) => {
+                this.getCases()
+                this.switchNewCaseView()
+              })
+            }
+          },
+          moveCase (id) {
+            const tempEl = this.caseData.filter(item => item.caseid === id)
+            console.log(tempEl)
+            if(tempEl[0].state === 'todo'){
+              tempEl[0].state = 'atwork'
+              this.changeState(tempEl[0].state, id)
+              return
+            }
+            if(tempEl[0].state === 'atwork'){
+              tempEl[0].state = 'done'
+              this.changeState(tempEl[0].state, id)
+              return
+            }
+          },
+          changeState (state, id) {
+            const params = new URLSearchParams()
+            params.append('case', 'changeState')
+            params.append('id', id)
+            params.append('state', state)
+            axios.post('http://localhost/M151_CFP/case.api.php', params)
+          },
+          getCases () {
+            const params = new URLSearchParams()
+            params.append('case', 'get')
+            axios.post('http://localhost/M151_CFP/case.api.php', params)
+            .then((response) => {
+              console.log(response.data)
+              if(response.data) this.caseData = response.data
+            })
+          },
+          getUsers () {
+            const params = new URLSearchParams()
+            params.append('user', 'getAll')
+            axios.post('http://localhost/M151_CFP/user.api.php', params)
+            .then((response) => {
+              if(response.data) this.users = response.data
+              this.users.forEach((element) => {
+                element.value = element.username
+                element.label = element.username
+              });
+            })
+          },
+          getUser () {
+            const params = new URLSearchParams()
+            params.append('user', 'get')
+            axios.post('http://localhost/M151_CFP/user.api.php', params)
+            .then((response) => {
+              if(response.data) this.users = response.data // ????
+            })
+          },
+          doLogout () {
+            const params = new URLSearchParams()
+            params.append('user', 'logout')
+            axios.post('http://localhost/M151_CFP/user.api.php', params)
+            .then((response) => {
+              window.location = "index.php"
+            })
+          },
+          switchNewCaseView () {
+            this.showAddCase = !this.showAddCase
+            this.newCaseText = ''
+            this.user = null
+          }
+        },
+        data (){
+          return {
+            user: null,
+            users: null,
+            newCaseText: '',
+            showAddCase: false,
+            caseData: [{
+                "caseid": "0",
+                "userid": "0",
+                "caseText": "no Data found",
+                "state": "todo"
+            }]
+          }
+        }
+      })
+
+      app.use(Quasar)
+      app.mount('#q-appAdmin')
+    </script>
+    <style>
+    #logout {
+      position: absolute;
+      right: 20px;
+      top: 20px;
+    }
+    .q-list {
+      width: 320px;
+    }
+    </style>
+  </body>
+</html>
