@@ -11,6 +11,7 @@ if(isset($_POST)){
         $_SESSION['isUser'] = TRUE;
         $_SESSION['userid'] = $uInfo['userid'];
         $_SESSION['isadmin'] = $uInfo['isadmin'];
+        // timestamp for inactivity logout
         $_SESSION['LAST_ACTIVITY'] = time();
         $userInfo = array('isadmin'=>$_SESSION['isadmin'], 'isUser'=> $_SESSION['isUser'], 'userid'=> $_SESSION['userid']);
         echo json_encode($userInfo);

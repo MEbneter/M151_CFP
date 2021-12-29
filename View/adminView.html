@@ -97,6 +97,7 @@
           </div>
         </q-list>
       </div>
+      <!-- logout button -->
       <q-btn fab icon="logout" color="black" id="logout" @click="doLogout"></q-btn>
     </div>
 
@@ -106,11 +107,11 @@
     <script>
 
       const app = Vue.createApp({
-        created () {
+        created () { // created gets called before the DOM is loaded
           this.getCases()
           this.getUsers()
         },
-        computed: {
+        computed: { // computed property's (getter functions)
           todoCases : function () {
             return this.caseData.filter(item => item.state === 'todo')
           },
@@ -149,7 +150,6 @@
           },
           moveCase (id) {
             const tempEl = this.caseData.filter(item => item.caseid === id)
-            console.log(tempEl)
             if(tempEl[0].state === 'todo'){
               tempEl[0].state = 'atwork'
               this.changeState(tempEl[0].state, id)
@@ -206,7 +206,7 @@
             this.user = null
           }
         },
-        data (){
+        data (){ // attributes
           return {
             user: null,
             users: null,

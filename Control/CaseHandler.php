@@ -6,6 +6,7 @@ class CaseHandler {
   private $cases = array();
 
   public function __construct(){
+    // gets the settings from the config and makes a db-connection
     $cfgData = json_decode(file_get_contents("./config.json"), true);
     $this->pdo = new PDO('mysql:host='.$cfgData['host'].';dbname='.$cfgData['dbname'], $cfgData['user'], $cfgData['pass']);
   }
