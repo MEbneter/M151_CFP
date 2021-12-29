@@ -135,10 +135,6 @@
               }
             })
           },
-          getUserName (userid) {
-            const user = this.users.filter(item => item.userid === userid)
-            return user[0].username
-          },
           addCase () {
             if(this.user){
               const params = new URLSearchParams()
@@ -201,6 +197,10 @@
             .then((response) => {
               if(response.data) this.users = response.data // ????
             })
+          },
+          getUserName (userid) {
+            const user = this.users.filter(item => item.userid === userid)
+            return user[0].username
           },
           doLogout () {
             const params = new URLSearchParams()
