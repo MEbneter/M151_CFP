@@ -18,7 +18,7 @@ class UserHandler {
   }
   public function getUsers() {
     $this->users = array();
-    $sql = "SELECT * FROM users";
+    $sql = "SELECT userid, username FROM users";
     foreach ($this->pdo->query($sql) as $row) {
        array_push($this->users, $row);
     }
